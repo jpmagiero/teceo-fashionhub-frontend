@@ -28,6 +28,7 @@ interface ItemTableProps {
   items: Item[];
   loadMore: () => void;
   hasMore: boolean;
+  refreshItems: () => void;
 }
 
 const STATUS_OPTIONS = [
@@ -36,7 +37,12 @@ const STATUS_OPTIONS = [
   { value: "out_of_stock", label: "Fora de estoque" },
 ];
 
-export function ItemTable({ items, loadMore, hasMore }: ItemTableProps) {
+export function ItemTable({
+  items,
+  loadMore,
+  hasMore,
+  refreshItems,
+}: ItemTableProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -119,12 +125,13 @@ export function ItemTable({ items, loadMore, hasMore }: ItemTableProps) {
 
       setIsModalOpen(false);
       setSelectedItems([]);
+      refreshItems();
     } catch (error) {
       console.error("Erro ao atualizar itens:", error);
     } finally {
       setIsSubmitting(false);
     }
-  }, [selectedItems, bulkStatus]);
+  }, [selectedItems, bulkStatus, refreshItems]);
 
   const renderHeader = useCallback(
     () => (

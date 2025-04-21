@@ -8,6 +8,18 @@ export function useInfiniteItems() {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
 
+  const loadItems = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res: FetchItemsResponse = await fetchItems({ take: 20, cursor: 0 });
+      setItems(res.items);
+      setCursor(res.nextCursor ?? 0);
+      setHasMore(res.nextCursor !== null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const loadMore = useCallback(async () => {
     if (loading || !hasMore) return;
     setLoading(true);
@@ -23,10 +35,10 @@ export function useInfiniteItems() {
 
   useEffect(() => {
     if (items.length === 0) {
-      loadMore();
+      loadItems();
     }
     // eslint-disable-next-line
   }, []);
 
-  return { items, loadMore, hasMore, loading };
+  return { items, loadMore, hasMore, loading, refreshItems: loadItems };
 }
