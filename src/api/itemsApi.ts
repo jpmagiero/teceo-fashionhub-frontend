@@ -1,5 +1,6 @@
 import axios from "axios";
 import { Item } from "../domain/item";
+import { API_BASE_URL } from "../utils/config";
 
 export interface FetchItemsParams {
   take: number;
@@ -15,7 +16,7 @@ export async function fetchItems({
   take,
   cursor,
 }: FetchItemsParams): Promise<FetchItemsResponse> {
-  const response = await axios.get("http://localhost:3000/items", {
+  const response = await axios.get(`${API_BASE_URL}/items`, {
     params: { take, cursor },
   });
   return response.data;
@@ -30,7 +31,7 @@ export async function updateItem({
   id,
   data,
 }: UpdateItemParams): Promise<Item> {
-  const response = await axios.put(`http://localhost:3000/items/${id}`, data);
+  const response = await axios.put(`${API_BASE_URL}/items/${id}`, data);
   return response.data;
 }
 
@@ -43,5 +44,5 @@ export async function bulkUpdateStatus({
   ids,
   status,
 }: BulkUpdateStatusParams): Promise<void> {
-  await axios.patch("http://localhost:3000/items/bulk/status", { ids, status });
+  await axios.patch(`${API_BASE_URL}/items/bulk/status`, { ids, status });
 }

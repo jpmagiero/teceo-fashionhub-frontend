@@ -13,6 +13,7 @@ import { ItemTableHeader } from "./components/ItemTableHeader";
 import { useTableSelection } from "../../hooks/useTableSelection";
 import { useCategoryOptions } from "../../hooks/useCategoryOptions";
 import { STATUS_OPTIONS } from "../../utils/constants";
+import { formatCurrency } from "../../utils/formatters";
 
 interface ItemTableProps {
   items: Item[];
@@ -127,12 +128,7 @@ export function ItemTable({
           itemId={item.id}
           fieldName="price"
           width={columnWidth}
-          formatter={(value) =>
-            new Intl.NumberFormat("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-            }).format(value)
-          }
+          formatter={formatCurrency}
         />
         <SelectEditableCell
           value={item.status}
