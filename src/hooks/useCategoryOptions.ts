@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { fetchCategories, Category } from "../../../api/categoriesApi";
+import { fetchCategories, Category } from "../api/categoriesApi";
 
 export function useCategoryOptions() {
   const [categories, setCategories] = useState<Category[]>([]);

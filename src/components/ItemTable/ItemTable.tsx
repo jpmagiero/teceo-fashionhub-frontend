@@ -2,17 +2,16 @@ import { Paper, TableCell, Checkbox } from "@mui/material";
 import { TableVirtuoso } from "react-virtuoso";
 import { Item } from "../../domain/item";
 import { StatusCell } from "./StatusCell";
-import { useMemo, useCallback, useEffect, useState } from "react";
+import { useMemo, useCallback, useState } from "react";
 import { TextEditableCell } from "./EditableFields/TextEditableCell";
 import { NumberEditableCell } from "./EditableFields/NumberEditableCell";
 import { SelectEditableCell } from "./EditableFields/SelectEditableCell";
-import { fetchCategories } from "../../api/categoriesApi";
 import { bulkUpdateStatus } from "../../api/itemsApi";
 import { TableToolbar } from "./components/TableToolbar";
 import { BulkUpdateModal } from "./components/BulkUpdateModal";
 import { ItemTableHeader } from "./components/ItemTableHeader";
-import { useTableSelection } from "./hooks/useTableSelection";
-import { useCategoryOptions } from "./hooks/useCategoryOptions";
+import { useTableSelection } from "../../hooks/useTableSelection";
+import { useCategoryOptions } from "../../hooks/useCategoryOptions";
 import { STATUS_OPTIONS } from "../../utils/constants";
 
 interface ItemTableProps {
@@ -33,17 +32,6 @@ export function ItemTable({
   const { categoryOptions } = useCategoryOptions();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    const getCategories = async () => {
-      try {
-        await fetchCategories();
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    };
-    getCategories();
-  }, []);
 
   const columns = useMemo(
     () => [
