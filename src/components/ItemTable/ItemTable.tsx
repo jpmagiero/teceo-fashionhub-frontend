@@ -313,7 +313,7 @@ export function ItemTable({
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: 600,
+            width: 700,
             bgcolor: "background.paper",
             boxShadow: 24,
             p: 4,
@@ -344,37 +344,90 @@ export function ItemTable({
               bgcolor="#f5f5f5"
               borderRadius={1}
             >
-              {items
-                .filter((item) => selectedItems.includes(item.id))
-                .map((item) => (
-                  <Box
-                    key={item.id}
-                    mb={1}
-                    pb={1}
-                    borderBottom="1px solid #ddd"
-                  >
-                    <Typography variant="body2">
-                      <strong>Nome:</strong> {item.name}
-                    </Typography>
-                    <Typography variant="body2">
-                      <strong>Marca:</strong> {item.brand}
-                    </Typography>
-                    <Typography variant="body2">
-                      <strong>Tamanho:</strong> {item.size}
-                    </Typography>
-                    <Typography variant="body2">
-                      <strong>Cor:</strong> {item.color}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      display="flex"
-                      alignItems="center"
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ backgroundColor: "#e0e0e0" }}>
+                    <th
+                      style={{
+                        padding: "10px",
+                        textAlign: "left",
+                        fontWeight: 600,
+                        borderBottom: "2px solid #ddd",
+                      }}
                     >
-                      <strong>Status:</strong>&nbsp;
-                      <StatusCell status={item.status} />
-                    </Typography>
-                  </Box>
-                ))}
+                      Nome
+                    </th>
+                    <th
+                      style={{
+                        padding: "10px",
+                        textAlign: "left",
+                        fontWeight: 600,
+                        borderBottom: "2px solid #ddd",
+                      }}
+                    >
+                      Marca
+                    </th>
+                    <th
+                      style={{
+                        padding: "10px",
+                        textAlign: "left",
+                        fontWeight: 600,
+                        borderBottom: "2px solid #ddd",
+                      }}
+                    >
+                      Tamanho
+                    </th>
+                    <th
+                      style={{
+                        padding: "10px",
+                        textAlign: "left",
+                        fontWeight: 600,
+                        borderBottom: "2px solid #ddd",
+                      }}
+                    >
+                      Cor
+                    </th>
+                    <th
+                      style={{
+                        padding: "10px",
+                        textAlign: "left",
+                        fontWeight: 600,
+                        borderBottom: "2px solid #ddd",
+                      }}
+                    >
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items
+                    .filter((item) => selectedItems.includes(item.id))
+                    .map((item, index) => (
+                      <tr
+                        key={item.id}
+                        style={{
+                          borderBottom: "1px solid #ddd",
+                          backgroundColor:
+                            index % 2 ? "#f9f9f9" : "transparent",
+                        }}
+                      >
+                        <td style={{ padding: "10px" }}>{item.name}</td>
+                        <td style={{ padding: "10px" }}>{item.brand}</td>
+                        <td style={{ padding: "10px" }}>{item.size}</td>
+                        <td style={{ padding: "10px" }}>{item.color}</td>
+                        <td
+                          style={{
+                            padding: "10px",
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          <StatusCell status={item.status} />
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
             </Box>
 
             <Typography variant="subtitle1" gutterBottom mt={3}>
