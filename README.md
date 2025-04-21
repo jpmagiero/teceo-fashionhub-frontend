@@ -1,54 +1,70 @@
-# React + TypeScript + Vite
+# Fashion Hub - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![Material UI](https://img.shields.io/badge/Material_UI-007FFF?style=for-the-badge&logo=mui&logoColor=white)
 
-Currently, two official plugins are available:
+Aplicação front-end para gerenciamento de peças de roupa e acessórios, desenvolvida em React utilizando Material UI e seguindo as práticas da Clean Architecture.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tecnologias Utilizadas
 
-## Expanding the ESLint configuration
+- **React 19**: Framework JavaScript para construção de interfaces
+- **TypeScript**: Superset de JavaScript com tipagem estática
+- **Vite**: Build tool e dev server para desenvolvimento rápido
+- **Material UI 7**: Biblioteca de componentes React
+- **Axios**: Cliente HTTP para requisições à API
+- **React Virtuoso**: Biblioteca para virtualização de listas e tabelas
+- **ESLint**: Ferramenta de linting para código JavaScript/TypeScript
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Pré-requisitos
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+- Node.js 18+ (recomendado última versão LTS)
+- npm ou yarn
+
+## Configuração
+
+1. Clone o repositório:
+
+   ```bash
+   git clone
+   cd teceo-fashionhub-frontend
+   ```
+
+2. Instale as dependências:
+
+   ```bash
+   npm install
+   # ou
+   yarn
+   ```
+
+3. Configure as variáveis de ambiente:
+
+   Caso o back-end esteja rodando em uma porta diferente da localhost:3000, crie um arquivo `.env` na raiz do projeto com o seguinte conteúdo:
+
+   ```
+   VITE_API_URL=http://localhost:3000
+   ```
+
+   Ajuste a URL conforme a localização da sua API backend.
+
+## Executando a Aplicação
+
+Para iniciar o servidor de desenvolvimento:
+
+```bash
+npm run dev
+# ou
+yarn dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+A aplicação estará disponível em `http://localhost:5173`
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Referências e Documentação
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+- [React](https://react.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Vite](https://vitejs.dev/)
+- [Material UI](https://mui.com/)
+- [React Virtuoso](https://virtuoso.dev/)
