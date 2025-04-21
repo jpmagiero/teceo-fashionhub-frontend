@@ -206,8 +206,15 @@ export function ItemTable({
                 }}
               />
             ),
+            TableBody: (props) => <tbody {...props} />,
             EmptyPlaceholder: () => (
-              <div style={{ padding: 16 }}>Nenhum item encontrado.</div>
+              <tbody>
+                <tr>
+                  <td colSpan={8} style={{ padding: 16, textAlign: "center" }}>
+                    Nenhum item encontrado.
+                  </td>
+                </tr>
+              </tbody>
             ),
           }}
           fixedHeaderContent={() => <ItemTableHeader columns={columns} />}
