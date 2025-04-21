@@ -33,3 +33,15 @@ export async function updateItem({
   const response = await axios.put(`http://localhost:3000/items/${id}`, data);
   return response.data;
 }
+
+export interface BulkUpdateStatusParams {
+  ids: number[];
+  status: string;
+}
+
+export async function bulkUpdateStatus({
+  ids,
+  status,
+}: BulkUpdateStatusParams): Promise<void> {
+  await axios.patch("http://localhost:3000/items/bulk/status", { ids, status });
+}
