@@ -1,19 +1,4 @@
-import {
-  Paper,
-  Typography,
-  Divider,
-  TableCell,
-  TableRow,
-  Checkbox,
-  Button,
-  Modal,
-  Box,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  SelectChangeEvent,
-} from "@mui/material";
+import { Paper, TableCell, Checkbox } from "@mui/material";
 import { TableVirtuoso } from "react-virtuoso";
 import { Item } from "../../domain/item";
 import { StatusCell } from "./StatusCell";
@@ -21,8 +6,14 @@ import { useMemo, useCallback, useEffect, useState } from "react";
 import { TextEditableCell } from "./EditableFields/TextEditableCell";
 import { NumberEditableCell } from "./EditableFields/NumberEditableCell";
 import { SelectEditableCell } from "./EditableFields/SelectEditableCell";
-import { fetchCategories, Category } from "../../api/categoriesApi";
+import { fetchCategories } from "../../api/categoriesApi";
 import { bulkUpdateStatus } from "../../api/itemsApi";
+import { TableToolbar } from "./components/TableToolbar";
+import { BulkUpdateModal } from "./components/BulkUpdateModal";
+import { ItemTableHeader } from "./components/ItemTableHeader";
+import { useTableSelection } from "./hooks/useTableSelection";
+import { useCategoryOptions } from "./hooks/useCategoryOptions";
+import { STATUS_OPTIONS } from "../../utils/constants";
 
 interface ItemTableProps {
   items: Item[];
@@ -31,44 +22,28 @@ interface ItemTableProps {
   refreshItems: () => void;
 }
 
-const STATUS_OPTIONS = [
-  { value: "in_stock", label: "Em estoque" },
-  { value: "last_units", label: "Últimas unidades" },
-  { value: "out_of_stock", label: "Fora de estoque" },
-];
-
 export function ItemTable({
   items,
   loadMore,
   hasMore,
   refreshItems,
 }: ItemTableProps) {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [selectedItems, setSelectedItems] = useState<number[]>([]);
+  const { selectedItems, handleSelectItem, clearSelection } =
+    useTableSelection();
+  const { categoryOptions } = useCategoryOptions();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [bulkStatus, setBulkStatus] = useState<string>("in_stock");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const getCategories = async () => {
       try {
-        const categoriesData = await fetchCategories();
-        setCategories(categoriesData);
+        await fetchCategories();
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
     };
     getCategories();
   }, []);
-
-  const categoryOptions = useMemo(
-    () =>
-      categories.map((category) => ({
-        value: category.id,
-        label: category.name,
-      })),
-    [categories]
-  );
 
   const columns = useMemo(
     () => [
@@ -85,22 +60,6 @@ export function ItemTable({
 
   const columnWidth = useMemo(() => `${100 / columns.length}%`, [columns]);
 
-  const handleSelectItem = useCallback(
-    (itemId: number, isSelected: boolean) => {
-      setSelectedItems((prev) => {
-        if (isSelected) {
-          if (prev.includes(itemId)) {
-            return prev;
-          }
-          return [...prev, itemId];
-        } else {
-          return prev.filter((id) => id !== itemId);
-        }
-      });
-    },
-    []
-  );
-
   const openModal = useCallback(() => {
     setIsModalOpen(true);
   }, []);
@@ -109,57 +68,27 @@ export function ItemTable({
     setIsModalOpen(false);
   }, []);
 
-  const handleStatusChange = useCallback((event: SelectChangeEvent<string>) => {
-    setBulkStatus(event.target.value);
-  }, []);
+  const handleBulkUpdate = useCallback(
+    async (status: string) => {
+      if (selectedItems.length === 0) return;
 
-  const handleBulkUpdate = useCallback(async () => {
-    if (selectedItems.length === 0) return;
+      setIsSubmitting(true);
+      try {
+        await bulkUpdateStatus({
+          ids: selectedItems,
+          status,
+        });
 
-    setIsSubmitting(true);
-    try {
-      await bulkUpdateStatus({
-        ids: selectedItems,
-        status: bulkStatus,
-      });
-
-      setIsModalOpen(false);
-      setSelectedItems([]);
-      refreshItems();
-    } catch (error) {
-      console.error("Erro ao atualizar itens:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [selectedItems, bulkStatus, refreshItems]);
-
-  const renderHeader = useCallback(
-    () => (
-      <TableRow>
-        <TableCell
-          padding="checkbox"
-          sx={{
-            fontWeight: "bold",
-            background: "#f5f5f5",
-            width: "48px",
-          }}
-        />
-        {columns.map((column) => (
-          <TableCell
-            key={column.dataKey}
-            sx={{
-              fontWeight: "bold",
-              background: "#f5f5f5",
-              textAlign: "left",
-            }}
-            width={columnWidth}
-          >
-            {column.label}
-          </TableCell>
-        ))}
-      </TableRow>
-    ),
-    [columns, columnWidth]
+        setIsModalOpen(false);
+        clearSelection();
+        refreshItems();
+      } catch (error) {
+        console.error("Erro ao atualizar itens:", error);
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [selectedItems, clearSelection, refreshItems]
   );
 
   const renderRow = useCallback(
@@ -239,34 +168,11 @@ export function ItemTable({
         marginTop: 32,
       }}
     >
-      <Box
-        width="95%"
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-      >
-        <Typography
-          variant="h5"
-          color="#fc6b4b"
-          fontWeight={600}
-          sx={{ letterSpacing: 1 }}
-        >
-          Lista de Produtos
-        </Typography>
-
-        {selectedItems.length > 0 && (
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={openModal}
-            sx={{ textTransform: "none" }}
-          >
-            Alterar status ({selectedItems.length} itens)
-          </Button>
-        )}
-      </Box>
-
-      <Divider sx={{ width: "100%", maxWidth: "95%", mb: 2, mt: 2 }} />
+      <TableToolbar
+        title="Lista de Produtos"
+        selectedCount={selectedItems.length}
+        onBulkAction={openModal}
+      />
 
       <Paper
         style={{
@@ -282,6 +188,7 @@ export function ItemTable({
           data={items}
           endReached={hasMore ? loadMore : undefined}
           style={{ height: "100%", width: "100%" }}
+          overscan={{ main: 50, reverse: 50 }}
           components={{
             Table: (props) => (
               <table
@@ -297,191 +204,19 @@ export function ItemTable({
               <div style={{ padding: 16 }}>Nenhum item encontrado.</div>
             ),
           }}
-          fixedHeaderContent={renderHeader}
+          fixedHeaderContent={() => <ItemTableHeader columns={columns} />}
           itemContent={renderRow}
         />
       </Paper>
 
-      <Modal
-        open={isModalOpen}
+      <BulkUpdateModal
+        isOpen={isModalOpen}
         onClose={closeModal}
-        aria-labelledby="modal-title"
-      >
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 700,
-            bgcolor: "background.paper",
-            boxShadow: 24,
-            p: 4,
-            borderRadius: 2,
-          }}
-        >
-          <Typography
-            id="modal-title"
-            variant="h6"
-            component="h2"
-            fontWeight="bold"
-            mb={3}
-          >
-            Alteração em Massa
-          </Typography>
-
-          <Box mb={3}>
-            <Typography variant="subtitle1" gutterBottom>
-              Você selecionou {selectedItems.length} itens:
-            </Typography>
-
-            <Box
-              maxHeight={300}
-              overflow="auto"
-              mt={2}
-              mb={2}
-              p={2}
-              bgcolor="#f5f5f5"
-              borderRadius={1}
-            >
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ backgroundColor: "#e0e0e0" }}>
-                    <th
-                      style={{
-                        padding: "10px",
-                        textAlign: "left",
-                        fontWeight: 600,
-                        borderBottom: "2px solid #ddd",
-                      }}
-                    >
-                      Nome
-                    </th>
-                    <th
-                      style={{
-                        padding: "10px",
-                        textAlign: "left",
-                        fontWeight: 600,
-                        borderBottom: "2px solid #ddd",
-                      }}
-                    >
-                      Marca
-                    </th>
-                    <th
-                      style={{
-                        padding: "10px",
-                        textAlign: "left",
-                        fontWeight: 600,
-                        borderBottom: "2px solid #ddd",
-                      }}
-                    >
-                      Tamanho
-                    </th>
-                    <th
-                      style={{
-                        padding: "10px",
-                        textAlign: "left",
-                        fontWeight: 600,
-                        borderBottom: "2px solid #ddd",
-                      }}
-                    >
-                      Cor
-                    </th>
-                    <th
-                      style={{
-                        padding: "10px",
-                        textAlign: "left",
-                        fontWeight: 600,
-                        borderBottom: "2px solid #ddd",
-                      }}
-                    >
-                      Status
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {items
-                    .filter((item) => selectedItems.includes(item.id))
-                    .map((item, index) => (
-                      <tr
-                        key={item.id}
-                        style={{
-                          borderBottom: "1px solid #ddd",
-                          backgroundColor:
-                            index % 2 ? "#f9f9f9" : "transparent",
-                        }}
-                      >
-                        <td style={{ padding: "10px" }}>{item.name}</td>
-                        <td style={{ padding: "10px" }}>{item.brand}</td>
-                        <td style={{ padding: "10px" }}>{item.size}</td>
-                        <td style={{ padding: "10px" }}>{item.color}</td>
-                        <td
-                          style={{
-                            padding: "10px",
-                            display: "flex",
-                            alignItems: "center",
-                          }}
-                        >
-                          <StatusCell status={item.status} />
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </Box>
-
-            <Typography variant="subtitle1" gutterBottom mt={3}>
-              Selecione o novo status:
-            </Typography>
-
-            <FormControl fullWidth margin="normal">
-              <InputLabel id="bulk-status-label">Status</InputLabel>
-              <Select
-                labelId="bulk-status-label"
-                value={bulkStatus}
-                onChange={handleStatusChange}
-                label="Status"
-              >
-                {STATUS_OPTIONS.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
-                    {option.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            mt={4}
-          >
-            <Typography variant="body2" color="text.secondary">
-              Total: {selectedItems.length} itens selecionados
-            </Typography>
-
-            <Box>
-              <Button
-                onClick={closeModal}
-                color="inherit"
-                sx={{ mr: 2 }}
-                disabled={isSubmitting}
-              >
-                Cancelar
-              </Button>
-              <Button
-                onClick={handleBulkUpdate}
-                variant="contained"
-                color="primary"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Processando..." : "Confirmar Alteração"}
-              </Button>
-            </Box>
-          </Box>
-        </Box>
-      </Modal>
+        selectedItems={selectedItems}
+        items={items}
+        onUpdateStatus={handleBulkUpdate}
+        isSubmitting={isSubmitting}
+      />
     </div>
   );
 }
