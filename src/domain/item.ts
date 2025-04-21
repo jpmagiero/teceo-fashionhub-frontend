@@ -5,6 +5,7 @@ export interface Item {
   size: string;
   color: string;
   category: string;
+  categoryId: number;
   price: number;
   status: string;
 }

@@ -20,3 +20,16 @@ export async function fetchItems({
   });
   return response.data;
 }
+
+export interface UpdateItemParams {
+  id: number;
+  data: Partial<Omit<Item, "id">>;
+}
+
+export async function updateItem({
+  id,
+  data,
+}: UpdateItemParams): Promise<Item> {
+  const response = await axios.put(`http://localhost:3000/items/${id}`, data);
+  return response.data;
+}
