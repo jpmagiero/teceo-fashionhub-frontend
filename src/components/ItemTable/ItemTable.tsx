@@ -20,6 +20,7 @@ interface ItemTableProps {
   loadMore: () => void;
   hasMore: boolean;
   refreshItems: () => void;
+  updateItemInState: (updatedItem: Item) => void;
 }
 
 export function ItemTable({
@@ -27,6 +28,7 @@ export function ItemTable({
   loadMore,
   hasMore,
   refreshItems,
+  updateItemInState,
 }: ItemTableProps) {
   const { selectedItems, handleSelectItem, clearSelection } =
     useTableSelection();
@@ -80,6 +82,13 @@ export function ItemTable({
     [selectedItems, clearSelection, refreshItems]
   );
 
+  const handleUpdateSuccess = useCallback(
+    (updatedItem: Item) => {
+      updateItemInState(updatedItem);
+    },
+    [updateItemInState]
+  );
+
   const renderRow = useCallback(
     (_index: number, item: Item) => (
       <>
@@ -96,24 +105,28 @@ export function ItemTable({
           itemId={item.id}
           fieldName="name"
           width={columnWidth}
+          onUpdateSuccess={handleUpdateSuccess}
         />
         <TextEditableCell
           value={item.brand}
           itemId={item.id}
           fieldName="brand"
           width={columnWidth}
+          onUpdateSuccess={handleUpdateSuccess}
         />
         <TextEditableCell
           value={item.size}
           itemId={item.id}
           fieldName="size"
           width={columnWidth}
+          onUpdateSuccess={handleUpdateSuccess}
         />
         <TextEditableCell
           value={item.color}
           itemId={item.id}
           fieldName="color"
           width={columnWidth}
+          onUpdateSuccess={handleUpdateSuccess}
         />
         <SelectEditableCell
           value={item.categoryId}
@@ -122,6 +135,7 @@ export function ItemTable({
           width={columnWidth}
           options={categoryOptions}
           renderDisplay={() => item.category}
+          onUpdateSuccess={handleUpdateSuccess}
         />
         <NumberEditableCell
           value={item.price}
@@ -129,6 +143,7 @@ export function ItemTable({
           fieldName="price"
           width={columnWidth}
           formatter={formatCurrency}
+          onUpdateSuccess={handleUpdateSuccess}
         />
         <SelectEditableCell
           value={item.status}
@@ -137,10 +152,17 @@ export function ItemTable({
           width={columnWidth}
           options={STATUS_OPTIONS}
           renderDisplay={(value) => <StatusCell status={value as string} />}
+          onUpdateSuccess={handleUpdateSuccess}
         />
       </>
     ),
-    [columnWidth, categoryOptions, selectedItems, handleSelectItem]
+    [
+      columnWidth,
+      categoryOptions,
+      selectedItems,
+      handleSelectItem,
+      handleUpdateSuccess,
+    ]
   );
 
   return (

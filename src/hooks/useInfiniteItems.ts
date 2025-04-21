@@ -32,6 +32,22 @@ export function useInfiniteItems() {
     }
   }, []);
 
+  const updateItemInState = useCallback((updatedItem: Item) => {
+    setItems((prevItems) =>
+      prevItems.map((item) =>
+        item.id === updatedItem.id ? { ...item, ...updatedItem } : item
+      )
+    );
+
+    if (
+      firstLoadedItemsRef.current.some((item) => item.id === updatedItem.id)
+    ) {
+      firstLoadedItemsRef.current = firstLoadedItemsRef.current.map((item) =>
+        item.id === updatedItem.id ? { ...item, ...updatedItem } : item
+      );
+    }
+  }, []);
+
   const loadMore = useCallback(async () => {
     if (isLoading || !hasMore) {
       return;
@@ -115,6 +131,7 @@ export function useInfiniteItems() {
     hasMore,
     isLoading,
     refreshItems: loadItems,
+    updateItemInState,
     totalItemsCount: totalItemsRef.current,
   };
 }
