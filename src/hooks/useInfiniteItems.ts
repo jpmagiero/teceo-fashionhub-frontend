@@ -9,13 +9,13 @@ export function useInfiniteItems() {
   const firstLoadedItemsRef = useRef<Item[]>([]);
   const [cursor, setCursor] = useState<number>(0);
   const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const totalItemsRef = useRef(0);
   const seenItemIds = useRef<Set<number>>(new Set());
 
   const loadItems = useCallback(async () => {
-    setLoading(true);
+    setIsLoading(true);
     try {
       const res: FetchItemsResponse = await fetchItems({ take: 20, cursor: 0 });
 
@@ -28,16 +28,16 @@ export function useInfiniteItems() {
       setHasMore(res.nextCursor !== null);
       totalItemsRef.current = res.items.length;
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }, []);
 
   const loadMore = useCallback(async () => {
-    if (loading || !hasMore) {
+    if (isLoading || !hasMore) {
       return;
     }
 
-    setLoading(true);
+    setIsLoading(true);
 
     try {
       const res: FetchItemsResponse = await fetchItems({ take: 20, cursor });
@@ -99,9 +99,9 @@ export function useInfiniteItems() {
       console.error("Error loading more items:", error);
       setHasMore(false);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
-  }, [cursor, hasMore, loading]);
+  }, [cursor, hasMore, isLoading]);
 
   useEffect(() => {
     if (items.length === 0) {
@@ -113,7 +113,7 @@ export function useInfiniteItems() {
     items,
     loadMore,
     hasMore,
-    loading,
+    isLoading,
     refreshItems: loadItems,
     totalItemsCount: totalItemsRef.current,
   };
